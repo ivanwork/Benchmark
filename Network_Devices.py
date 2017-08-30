@@ -5,13 +5,13 @@ import xlrd
 import os
 import time
 
-def ssh2(ip, port, username, passwd, cmd, line, device):
+def ssh2(ip, port, username, passwd, cmd, device):
     buffer=[]
     try:
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(ip, port, username, passwd)
-        chan = ssh.invoke_shell(height = line)
+        chan = ssh.invoke_shell()
         for x in cmd:
             chan.send(x)
             while not chan.recv_ready():
@@ -42,7 +42,7 @@ def write_log(path, file, content):
     return new
 
 def input_info(file, sheet_name):
-    device_name, brand, ip, port, username, passwd, cmd, line= [], [] ,[], [], [], [], [], []
+    device_name, brand, ip, port, username, passwd, cmd = [], [] ,[], [], [], [], []
     data = xlrd.open_workbook(file)
     table = data.sheet_by_name(sheet_name)
     value = []
@@ -56,7 +56,6 @@ def input_info(file, sheet_name):
         username.append(x[4])
         passwd.append(x[5])
         cmd.append(x[6].split(','))
-        line.append(x[7])
     device_name = device_name[1:]
     brand = brand[1:]
     ip = ip[1:]
@@ -64,7 +63,6 @@ def input_info(file, sheet_name):
     username = username[1:]
     passwd = passwd[1:]
     cmd = cmd[1:]
-    line = line[1:]
     for x in range(len(cmd)):
         if brand[x] == 'Cisco_Router':
             cmd[x] = cmd[x] + ['terminal length 0', 'show bgp', 'show cdp', 'show crypto key mypubkey rsa', 'show interface description', 'show logging', 'show mpls interface', 'show ntp associations det', 'show ntp status', 'show running-config']
@@ -94,16 +92,16 @@ def input_info(file, sheet_name):
             cmd[x] = cmd[x] + []
         for y in range(len(cmd[x])):
             cmd[x][y] = cmd[x][y] + '\n'
-    return device_name, brand, ip, port, username, passwd, cmd, line
+    return device_name, brand, ip, port, username, passwd, cmd
 
 
 if __name__ == "__main__":
-    input_file = input('请输入excel文件所在路径（如：D:\\file\\file.xls）:\n')
-#    input_file = r'D:\\Python\test.xlsx'
-    sheet = input('请输入excel文件所在sheet（如：info）:\n')
-#    sheet = r'test'
-    export_path = input('请输入输出文件所在路径（如：D:\\file\\）:\n注意注意注意：若该文件夹内存在基线抓取结果，原有文件可能被覆盖！！！ \n')
-#    export_path = r'D:\\Python\test' + '\\'
+#    input_file = input('请输入excel文件所在路径（如：D:\\file\\file.xls）:\n')
+    input_file = r'D:\\Python\test.xlsx'
+#    sheet = input('请输入excel文件所在sheet（如：info）:\n')
+    sheet = r'test'
+#    export_path = input('请输入输出文件所在路径（如：D:\\file\\）:\n注意注意注意：若该文件夹内存在基线抓取结果，原有文件可能被覆盖！！！ \n')
+    export_path = r'D:\\Python\test' + '\\'
     print('In processing, please wait...\n')
     info = input_info(input_file, sheet)
     result = []
@@ -112,7 +110,7 @@ if __name__ == "__main__":
         os.makedirs(path)
     for x in range(len(info[1])):
         log = []
-        log = ssh2(info[2][x], int(info[3][x]), info[4][x], info[5][x], info[6][x], int(info[7][x]), info[0][x])
+        log = ssh2(info[2][x], int(info[3][x]), info[4][x], info[5][x], info[6][x], info[0][x])
         print(write_log(path + '\\', info[0][x] + '-' + time.strftime('%Y%m%d', time.localtime()) + '-benchmark.log', log))
 #    os.system('pause')  
 
