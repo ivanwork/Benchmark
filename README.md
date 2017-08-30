@@ -1,6 +1,6 @@
 # Benchmark
-自动抓取网络设备配置信息
+Getting network devices configuration automatically
 
-目前已经测试网络设备：
-思科路由器
-华为路由器
+Tested network devices:
+Cisco IOS Router
+Huawei Router
