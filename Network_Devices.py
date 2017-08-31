@@ -7,6 +7,7 @@ import time
 
 def ssh2(ip, port, username, passwd, cmd, device):
     buffer=[]
+    print('Getting \'%s(%s)\' benchmark is in processing, please wait...\n' %(device, ip))
     try:
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -15,14 +16,13 @@ def ssh2(ip, port, username, passwd, cmd, device):
         for x in cmd:
             chan.send(x)
             while not chan.recv_ready():
-                time.sleep(5)
-            respond = chan.recv(9999)
+                time.sleep(3)
+            respond = chan.recv(99999)
             buffer.append(bytes.decode(respond))
         ssh.close()
-        print('Getting \'' + device +'\' benchmark is in processing, please wait...\n')
     except:
-        print('Connect to %s Error\n' %(ip))
-        #raise
+        print('Connect to \'%s(%s)\' Error\n' %(device, ip))
+        raise
         buffer.append('Error')
         pass
     return buffer
@@ -96,12 +96,12 @@ def input_info(file, sheet_name):
 
 
 if __name__ == "__main__":
-#    input_file = input('请输入excel文件所在路径（如：D:\\file\\file.xls）:\n')
-    input_file = r'D:\\Python\test.xlsx'
-#    sheet = input('请输入excel文件所在sheet（如：info）:\n')
-    sheet = r'test'
-#    export_path = input('请输入输出文件所在路径（如：D:\\file\\）:\n注意注意注意：若该文件夹内存在基线抓取结果，原有文件可能被覆盖！！！ \n')
-    export_path = r'D:\\Python\test' + '\\'
+    input_file = input('请输入excel文件所在路径（如：D:\\file\\file.xls）:\n')
+#    input_file = r'D:\\Python\test.xlsx'
+    sheet = input('请输入excel文件所在sheet（如：info）:\n')
+#    sheet = r'test'
+    export_path = input('请输入输出文件所在路径（如：D:\\file\\）:\n注意注意注意：若该文件夹内存在基线抓取结果，原有文件可能被覆盖！！！ \n')
+#    export_path = r'D:\\Python\test' + '\\'
     print('In processing, please wait...\n')
     info = input_info(input_file, sheet)
     result = []
@@ -112,5 +112,4 @@ if __name__ == "__main__":
         log = []
         log = ssh2(info[2][x], int(info[3][x]), info[4][x], info[5][x], info[6][x], info[0][x])
         print(write_log(path + '\\', info[0][x] + '-' + time.strftime('%Y%m%d', time.localtime()) + '-benchmark.log', log))
-#    os.system('pause')  
-
+#    os.system('pause')
